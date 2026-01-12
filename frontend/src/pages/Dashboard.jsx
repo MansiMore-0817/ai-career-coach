@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { getOrUpdateStreak } from "../utils/streak";
 import StatCard from "../components/Statcard";
 import { getXPData } from "../utils/xp";
+import { ALL_BADGES, getBadges } from "../utils/badges";
 
 export default function Dashboard() {
   const [streak, setStreak] = useState(1);
   const [xpData, setXpData] = useState({ xp: 0, level: "Beginner 🐣" });
+  const [earnedBadges, setEarnedBadges] = useState([]);
 
   useEffect(() => {
     const data = getOrUpdateStreak();
@@ -14,6 +16,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     setXpData(getXPData());
+  }, []);
+
+  useEffect(() => {
+    setEarnedBadges(getBadges());
   }, []);
 
   return (
@@ -29,6 +35,34 @@ export default function Dashboard() {
         <StatCard title="Tasks Done" value="24/40" />
         <StatCard title="Progress" value="60%" />
         <StatCard title="Time Spent" value="18.5 hrs" />
+      </div>
+
+      {/* Badges Section */}
+      <div className="bg-white p-6 rounded-lg border shadow-sm mt-6">
+        <h3 className="font-semibold mb-4">🏅 Badges</h3>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {ALL_BADGES.map((badge) => {
+            const earned = earnedBadges.includes(badge.id);
+
+            return (
+              <div
+                key={badge.id}
+                className={`p-4 rounded-lg border text-center transition ${
+                  earned
+                    ? "bg-green-50 border-green-300"
+                    : "bg-gray-100 border-gray-200 opacity-50"
+                }`}
+              >
+                <div className="text-2xl mb-2">{badge.icon}</div>
+
+                <p className="text-sm font-medium">{badge.title}</p>
+
+                <p className="text-xs text-gray-500">{badge.description}</p>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Progress Section */}

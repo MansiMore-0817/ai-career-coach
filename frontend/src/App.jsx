@@ -3,7 +3,7 @@ import Navbar from "./components/Navbar";
 
 import Dashboard from "./pages/Dashboard";
 import ResumeAnalyzer from "./pages/ResumeAnalyzer";
-import Roadmap from "./pages/Roadmap";
+import Roadmap from "./pages/RoadMap";
 import CareerChat from "./pages/CareerChat";
 
 import { Routes, Route } from "react-router-dom";

@@ -1,0 +1,1 @@
+// AI response caching model
