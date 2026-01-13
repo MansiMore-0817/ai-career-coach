@@ -10,11 +10,7 @@ import adminRoutes from "./routes/admin.routes.js";
 import mentorRoutes from "./routes/mentor.routes.js";
 import mentorshipRoutes from "./routes/mentorship.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
-
-
-
-dotenv.config();
-connectDB();
+import aiRoutes from "./routes/ai.routes.js";
 
 const app = express();
 
@@ -29,7 +25,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/mentors", mentorRoutes);
 app.use("/api/mentorship", mentorshipRoutes);
 app.use("/api/chat", chatRoutes);
-
+app.use("/api/ai", aiRoutes);
 
 // Health check route
 app.get("/", (req, res) => {
