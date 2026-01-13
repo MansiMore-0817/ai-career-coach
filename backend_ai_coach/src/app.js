@@ -9,6 +9,7 @@ import progressRoutes from "./routes/progress.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import mentorRoutes from "./routes/mentor.routes.js";
 import mentorshipRoutes from "./routes/mentorship.routes.js";
+import chatRoutes from "./routes/chat.routes.js";
 
 
 
@@ -27,6 +28,7 @@ app.use("/api/progress", progressRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/mentors", mentorRoutes);
 app.use("/api/mentorship", mentorshipRoutes);
+app.use("/api/chat", chatRoutes);
 
 
 // Health check route

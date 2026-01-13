@@ -7,6 +7,13 @@ import {
   respondToRequest
 } from "../controllers/mentorship.controller.js";
 
+import {
+  getStudentMentorships,
+  getMentorMentorships
+} from "../controllers/mentorship.controller.js";
+
+
+
 const router = express.Router();
 
 // Student → send request
@@ -33,4 +40,25 @@ router.patch(
   respondToRequest
 );
 
+
+
+// Student → view mentorship history
+router.get(
+  "/student",
+  protect,
+  requireRole("student"),
+  getStudentMentorships
+);
+
+// Mentor → view mentorship history
+router.get(
+  "/mentor",
+  protect,
+  requireRole("mentor"),
+  getMentorMentorships
+);
+
+
 export default router;
+
+

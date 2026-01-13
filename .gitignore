@@ -6,7 +6,7 @@ backend_ai_coach/.env
 frontend/node_modules/
 frontend/.env
 
-# Logs
+# Logs.
 *.log
 
 # OS

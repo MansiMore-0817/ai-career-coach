@@ -1,5 +1,9 @@
 import MentorshipRequest from "../models/MentorshipRequest.model.js";
 import User from "../models/User.model.js";
+import mongoose from "mongoose";
+import ActiveMentorship from "../models/ActiveMentorship.model.js";
+
+
 
 /**
  * Student sends request to mentor
@@ -71,17 +75,100 @@ export const respondToRequest = async (req, res) => {
     return res.status(400).json({ message: "Invalid action" });
   }
 
-  const request = await MentorshipRequest.findOne({
-    _id: requestId,
-    mentor: mentorId
-  });
+  const session = await mongoose.startSession();
 
-  if (!request) {
-    return res.status(404).json({ message: "Request not found" });
+  try {
+    await session.withTransaction(async () => {
+      const request = await MentorshipRequest.findOne({
+        _id: requestId,
+        mentor: mentorId,
+        status: "pending"
+      }).session(session);
+
+      if (!request) {
+        throw new Error("Request not found or already handled");
+      }
+
+      if (action === "reject") {
+        request.status = "rejected";
+        await request.save({ session });
+        return;
+      }
+
+      // action === "accept"
+
+      // 🔒 Prevent duplicate active mentorships
+      const existingMentorship = await ActiveMentorship.findOne({
+        student: request.student,
+        mentor: request.mentor,
+        status: "active"
+      }).session(session);
+
+      if (existingMentorship) {
+        throw new Error("Active mentorship already exists");
+      }
+
+      request.status = "accepted";
+      await request.save({ session });
+
+      await ActiveMentorship.create(
+        [
+          {
+            student: request.student,
+            mentor: request.mentor,
+            sourceRequest: request._id
+          }
+        ],
+        { session }
+      );
+    });
+
+    res.json({
+      message:
+        action === "accept"
+          ? "Request accepted and mentorship started"
+          : "Request rejected"
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  } finally {
+    session.endSession();
   }
+};
 
-  request.status = action === "accept" ? "accepted" : "rejected";
-  await request.save();
 
-  res.json({ message: `Request ${request.status}` });
+
+// Student views active mentorships
+export const getStudentMentorships = async (req, res) => {
+  try {
+    const studentId = req.user.userId;
+
+    const mentorships = await ActiveMentorship.find({
+      student: studentId
+    })
+      .populate("mentor", "name email")
+      .sort({ createdAt: -1 });
+
+    res.json(mentorships);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+// Mentor views active mentorships
+export const getMentorMentorships = async (req, res) => {
+  try {
+    const mentorId = req.user.userId;
+
+    const mentorships = await ActiveMentorship.find({
+      mentor: mentorId
+    })
+      .populate("student", "name email")
+      .sort({ createdAt: -1 });
+
+    res.json(mentorships);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
